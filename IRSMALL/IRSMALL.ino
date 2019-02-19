@@ -5,5 +5,5 @@ void setup() {
 }
 void loop() {
   Serial.println(analogRead(IRSMALL));
-  delay(1000);
+  delay(300);
 }
