@@ -7,12 +7,11 @@ void setup() {
 void loop() {
   
   // 5v
-  float volts = analogRead(sensor)*0.0048828125*0.5;  // value from sensor * (5/1024)
-  //int distance = 13*pow(volts, -1); // worked out from datasheet graph
-  float distance = 30;
-  delay(1000); // slow down serial port 
+  double volts = analogRead(sensor);  // value from sensor
+  double distance = ((6700/(volts-3)) - 4);// best fit line calculated from graph
+  delay(500); // slow down serial port 
   
-  if (distance <= 30){
-    Serial.println(volts);   // print the distance
+  if (distance >= 0){
+    Serial.println(distance);   // print the distance
   }
 }
