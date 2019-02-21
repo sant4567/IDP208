@@ -8,7 +8,7 @@ void loop() {
   
   // 5v
   double volts = analogRead(sensor);  // value from sensor
-  double distance = ((6700/(volts-3)) - 4);// best fit line calculated from graph
+  double distance = ((6762/(volts-9)) - 4);// best fit line calculated from graph
   delay(500); // slow down serial port 
   
   if (distance >= 0){
