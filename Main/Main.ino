@@ -13,6 +13,8 @@ Adafruit_DCMotor *L_motor = AFMS.getMotor(1);
 // You can also make another motor on port M2
 Adafruit_DCMotor *R_motor = AFMS.getMotor(2);
 int count = 0;
+double duration, distance;
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -44,36 +46,29 @@ void turn(void){
 // Turn
   setMotorSpeeds(-255, -50);
   delay(2000);
+  setMotorSpeeds(-150, -150);
+  delay(500);
 }
 void loop() {
-  /*
-  // Ultrasound
-  double duration, distance;
-  digitalWrite(trigPin, LOW); // Added this line
-  delayMicroseconds(2); // Added this line
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10); // Added this line
-  digitalWrite(trigPin, LOW);
-  duration = pulseIn(echoPin, HIGH);
-  distance = (duration/2) / 29.1;
-  int L = 200+(distance-12)*8;
-  if (L>255) {
-    L = 255;
-  }
-  setMotorSpeeds(L, 200);
-  if (digitalRead(button)){
-    turn();
-  }
-  Serial.println(distance);
-  */
-  if (count < 3) {
+  if (count < 1) {
     setMotorSpeeds(255,250);
   }
   else {
-    setMotorSpeeds(255,245);
+    digitalWrite(trigPin, LOW); // Added this line
+    delayMicroseconds(2); // Added this line
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10); // Added this line
+    digitalWrite(trigPin, LOW);
+    duration = pulseIn(echoPin, HIGH); 
+    distance = (duration/2) / 29.1;
+    int L = 100+(distance-13)*2;
+    if (L>255) {
+      L = 255;
+    }
+    setMotorSpeeds(L, 100);
   }
   if (digitalRead(button)){
-    ++count;
-    turn();
-  }
+      ++count;
+      turn();
+    }
 }
