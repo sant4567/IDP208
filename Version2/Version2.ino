@@ -45,47 +45,53 @@ void setMotorSpeeds(int L_speed, int R_speed) {
 
 void turn(void){
 // Turn
-  setMotorSpeeds(-255, -50);
-  delay(1500);
+  setMotorSpeeds(-255, 50);
+  delay(1100);
   setMotorSpeeds(240,230);
   delay(500);
-  setMotorSpeeds(252,252);
+  setMotorSpeeds(240,255);
   delay(500);
 }
 void turn_180(void){
-  if (row_count % 2 == 0){
+  if (row_count%2) {
+    setMotorSpeeds(-250,0);
+    delay(3800);
+    setMotorSpeeds(-200,-200);
+    delay(1000);
+    ++row_count;
+  }
+  else {
     setMotorSpeeds(0,-250);
     delay(3800);
     setMotorSpeeds(-200,-200);
     delay(1000);
     ++row_count;
   }
-  else{
-    setMotorSpeeds(-250,-0);
-    delay(3800);
-    setMotorSpeeds(-200,-200);
-    delay(1000);
-    ++row_count;
-  }
+}
+void detect(void) {
+  
+}
+void shelf_park(void) {
+  setMotorSpeeds(-255, -250);
+  delay(1500);
+  setMotorSpeeds(150, 255);
+  delay(1500);
+  setMotorSpeeds(255,150);
+  delay(1500);
+  setMotorSpeeds(150, 100);
+  delay(100000);
 }
 void loop() {
-    setMotorSpeeds(255,255);
-    /*
-    digitalWrite(trigPin, LOW); // Added this line
-    delayMicroseconds(2); // Added this line
-    digitalWrite(trigPin, HIGH);
-    delayMicroseconds(10); // Added this line
-    digitalWrite(trigPin, LOW);
-    duration = pulseIn(echoPin, HIGH); 
-    distance = (duration/2) / 29.1;
-    int L = 100+(distance-13)*2;
-    if (L>255) {
-      L = 255;
-    }
-    setMotorSpeeds(L, 100);
-  }*/
+  // if IR: detect()
+  setMotorSpeeds(255,249);
+  
   if (digitalRead(button)){
-      ++count;
-      turn_180();
+    if (count<1){
+      turn();
     }
+    else if (count==1) {
+      shelf_park();
+    }
+    ++count;
+  }
 }
