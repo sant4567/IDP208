@@ -3,6 +3,7 @@
 #define button 2
 #define trigPin 13
 #define echoPin 12
+#define IRSMALL A0
 // Create the motor shield object with the default I2C address
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 // Or, create it with a different I2C address (say for stacking)
@@ -26,7 +27,7 @@ void setup() {
   //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
-  
+  pinMode(IRSMALL, INPUT);
 }
 void setMotorSpeed(Adafruit_DCMotor *motor, int motor_speed) {
   motor->setSpeed(abs(motor_speed));
@@ -96,6 +97,7 @@ void shelf_park(void) {
 void loop() {
   // if IR: detect()
   setMotorSpeeds(255,240);
+  Serial.println(analogRead(IRSMALL));
   
   if (digitalRead(button)){
     if (count<1){
