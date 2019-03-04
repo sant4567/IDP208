@@ -81,8 +81,18 @@ void turn_180(void){
     ++row_count;
   }
 }
-void detect(void) {
-  
+void detectIR(void) {
+  if (analogRead(IRSMALL) > 10) {
+    setMotorSpeeds(0,0);
+    int iter = 0;
+    while (iter < 10 and analogRead(IRSMALL) > 10) {
+      iter+=1;
+      Serial.println("positive reading");
+    }
+    if (iter>9) {
+      Serial.println("Block Detected");
+    }
+  }
 }
 void shelf_park(void) {
   setMotorSpeeds(-255, -250);
@@ -97,7 +107,7 @@ void shelf_park(void) {
 void loop() {
   // if IR: detect()
   setMotorSpeeds(255,240);
-  Serial.println(analogRead(IRSMALL));
+  detectIR();
   
   if (digitalRead(button)){
     if (count<1){
