@@ -1,34 +1,28 @@
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
+#include <Servo.h>
 #define button 2
 #define trigPin 13
 #define echoPin 12
 #define IRSMALL A0
+
+// Initiate servo
+int servo_pin = 10;
+Servo servo;
+int open_angle = 70;
+int closed_angle = 150;
+
 // Create the motor shield object with the default I2C address
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
-// Or, create it with a different I2C address (say for stacking)
-// Adafruit_MotorShield AFMS = Adafruit_MotorShield(0x61); 
 
-// Select which 'port' M1, M2, M3 or M4. In this case, M1
+// Select ports
 Adafruit_DCMotor *L_motor = AFMS.getMotor(1);
-// You can also make another motor on port M2
 Adafruit_DCMotor *R_motor = AFMS.getMotor(2);
+Adafruit_DCMotor *S_motor = AFMS.getMotor(3);
 int count = 0;
 int row_count = 0;
 double duration, distance;
 
-
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);// set up Serial library at 9600 bps
-  pinMode(button,INPUT);
-  Serial.println("Adafruit Motorshield v2 - DC Motor test!");
-  AFMS.begin();  // create with the default frequency 1.6KHz
-  //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
-  pinMode(IRSMALL, INPUT);
-}
 void setMotorSpeed(Adafruit_DCMotor *motor, int motor_speed) {
   motor->setSpeed(abs(motor_speed));
   if (motor_speed >= 0) {
@@ -42,6 +36,10 @@ void setMotorSpeed(Adafruit_DCMotor *motor, int motor_speed) {
 void setMotorSpeeds(int L_speed, int R_speed) {
   setMotorSpeed(L_motor, L_speed);
   setMotorSpeed(R_motor, R_speed);
+}
+
+void setSweeperSpeed(int S_speed) {
+  setMotorSpeed(S_motor, S_speed);
 }
 
 void turn(void){
@@ -81,6 +79,19 @@ void turn_180(void){
     ++row_count;
   }
 }
+void detectHES(void) {
+  // take HES reading
+  if (not port is high i.e. not magnetic) {
+    // potentially reverse
+    setSweeperSpeed(-200);
+    delay(100);
+    setMotorSpeeds(100, 100);
+    delay(100);
+    setSweeperSpeed(200);
+    delay(500);
+    setSweeperSpeed(0);
+  }
+}
 void detectIR(void) {
   if (analogRead(IRSMALL) > 10) {
     setMotorSpeeds(0,0);
@@ -91,8 +102,10 @@ void detectIR(void) {
     }
     if (iter>9) {
       Serial.println("Block Detected");
+      detectHES();
     }
   }
+  
 }
 void shelf_park(void) {
   setMotorSpeeds(-255, -250);
@@ -104,8 +117,23 @@ void shelf_park(void) {
   setMotorSpeeds(150, 100);
   delay(100000);
 }
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);// set up Serial library at 9600 bps
+  pinMode(button,INPUT);
+  Serial.println("Adafruit Motorshield v2 - DC Motor test!");
+  AFMS.begin();  // create with the default frequency 1.6KHz
+  //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(IRSMALL, INPUT);
+  setMotorSpeeds(0, 0);
+  setSweeperSpeed(100);
+  delay(300);
+  setSweeperSpeed(0);
+}
 void loop() {
-  // if IR: detect()
+  // if IR: detectIR()
   setMotorSpeeds(255,240);
   detectIR();
   
