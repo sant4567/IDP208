@@ -114,8 +114,29 @@ void shelf_park(void) {
   delay(1500);
   setMotorSpeeds(255,150);
   delay(1500);
-  setMotorSpeeds(150, 100);
-  delay(100000);
+  while (!digitalRead(button)){
+    setMotorSpeeds(150, 100);
+  }
+  delay(100);
+  while (digitalRead(button)){
+    setMotorSpeeds(-110,-100);
+  }
+  setMotorSpeeds(100,100);
+  // activate servo 
+  delay(2000);//driving forwards while cubes slide onto shelf
+  //cubes now deposited on shelf
+  //servo lowers
+  //robot drives forward past shelf towards start zone
+  while (!digitalRead(button));
+    setMotorSpeeds(250,250);
+  //robot reaches final wall next to start zone and begins turning
+  setMotorSpeeds(-200,0);
+  delay(1000);
+  setMotorSpeeds(100,100);
+  delay(200);
+  setMotorSpeeds(0,0);
+  delay(10000);//robot finished in start zone
+  
 }
 void setup() {
   // put your setup code here, to run once:
@@ -138,12 +159,14 @@ void loop() {
   detectIR();
   
   if (digitalRead(button)){
-    if (count<1){
+    if (count<3){
       turn();
     }
-    else if (count==1) {
+    else if (count==3) {
       shelf_park();
     }
     ++count;
+      
+    }
   }
 }
