@@ -5,6 +5,7 @@
 #define trigPin 13
 #define echoPin 12
 #define IRSMALL A0
+//#define amberPin N
 
 // Initiate servo
 int servo_pin = 10;
@@ -22,6 +23,8 @@ Adafruit_DCMotor *S_motor = AFMS.getMotor(3);
 int count = 0;
 int row_count = 0;
 double duration, distance;
+int amber =0;
+int iter = 0;
 
 void setMotorSpeed(Adafruit_DCMotor *motor, int motor_speed) {
   motor->setSpeed(abs(motor_speed));
@@ -81,7 +84,7 @@ void turn_180(void){
 }
 void detectHES(void) {
   // take HES reading
-  if (not port is high i.e. not magnetic) {
+  /*if (not port is high i.e. not magnetic) {
     // potentially reverse
     setSweeperSpeed(-200);
     delay(100);
@@ -90,17 +93,17 @@ void detectHES(void) {
     setSweeperSpeed(200);
     delay(500);
     setSweeperSpeed(0);
-  }
+  }*/
 }
 void detectIR(void) {
   if (analogRead(IRSMALL) > 10) {
     setMotorSpeeds(0,0);
-    int iter = 0;
-    while (iter < 10 and analogRead(IRSMALL) > 10) {
-      iter+=1;
+    int IR = 0;
+    while (IR < 10 and analogRead(IRSMALL) > 10) {
+      IR+=1;
       Serial.println("positive reading");
     }
-    if (iter>9) {
+    if (IR>9) {
       Serial.println("Block Detected");
       detectHES();
     }
@@ -157,7 +160,12 @@ void loop() {
   // if IR: detectIR()
   setMotorSpeeds(255,240);
   detectIR();
-  
+  iter++;
+  if (iter>500) {
+    iter=0;
+    amber=not amber;
+    //digitalWrite(amberPin, amber);
+  }
   if (digitalRead(button)){
     if (count<3){
       turn();
@@ -166,7 +174,5 @@ void loop() {
       shelf_park();
     }
     ++count;
-      
-    }
   }
 }
