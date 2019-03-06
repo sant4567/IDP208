@@ -60,9 +60,9 @@ void turn(void){
   setMotorSpeeds(-250,0);
   delay(1500);
   setMotorSpeeds(200,250);
-  delay(1200);
+  delay(1400);
   setMotorSpeeds(-220,0);
-  delay(1700);
+  delay(1900);
   setMotorSpeeds(-200,-250);
   delay(1200);
   setMotorSpeeds(-200,-200);
