@@ -2,6 +2,7 @@
 #include <Adafruit_MotorShield.h>
 #include <Servo.h>
 #define button 2
+#define side_button 3
 #define trigPin 13
 #define echoPin 12
 #define IRSMALL A0
@@ -56,12 +57,18 @@ void turn(void){
   delay(500);
   */
   // Updated turn
-  setMotorSpeeds(-200,0);
+  setMotorSpeeds(-250,0);
+  delay(1500);
+  setMotorSpeeds(200,250);
+  delay(1200);
+  setMotorSpeeds(-220,0);
+  delay(1700);
+  setMotorSpeeds(-200,-250);
+  delay(1200);
+  setMotorSpeeds(-200,-200);
   delay(1000);
-  setMotorSpeeds(0,150);
-  delay(600);
-  setMotorSpeeds(200,200);
-  delay(600);
+  setMotorSpeeds(250,200);
+  delay(1500);
   //setMotorSpeeds(0,0);
   //delay(49000);
   
@@ -86,17 +93,11 @@ void detectHES(void) {
   // take HES reading
   /*if (not port is high i.e. not magnetic) {
     // potentially reverse
-    setSweeperSpeed(-200);
-    delay(100);
-    setMotorSpeeds(100, 100);
-    delay(100);
-    setSweeperSpeed(200);
-    delay(500);
-    setSweeperSpeed(0);
+      block_load();
   }*/
 }
 void detectIR(void) {
-  if (analogRead(IRSMALL) > 10) {
+  /*if (analogRead(IRSMALL) > 10) {
     setMotorSpeeds(0,0);
     int IR = 0;
     while (IR < 10 and analogRead(IRSMALL) > 10) {
@@ -107,7 +108,7 @@ void detectIR(void) {
       Serial.println("Block Detected");
       detectHES();
     }
-  }
+  }*/
   
 }
 void shelf_park(void) {
@@ -117,11 +118,11 @@ void shelf_park(void) {
   delay(1500);
   setMotorSpeeds(255,150);
   delay(1500);
-  while (!digitalRead(button)){
+  while (!digitalRead(side_button)){
     setMotorSpeeds(150, 100);
   }
   delay(100);
-  while (digitalRead(button)){
+  while (digitalRead(side_button)){
     setMotorSpeeds(-110,-100);
   }
   setMotorSpeeds(100,100);
@@ -141,6 +142,20 @@ void shelf_park(void) {
   delay(10000);//robot finished in start zone
   
 }
+void block_load(void) {
+  setSweeperSpeed(-100);
+  delay(1500);
+  setMotorSpeeds(100,100);
+  delay(1000);
+  setMotorSpeeds(0,0);
+  setSweeperSpeed(255);
+  delay(550);
+  setSweeperSpeed(-100);
+  delay(2500);
+  setSweeperSpeed(100);
+  delay(550);
+  setSweeperSpeed(0);
+}
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);// set up Serial library at 9600 bps
@@ -152,8 +167,10 @@ void setup() {
   pinMode(echoPin, INPUT);
   pinMode(IRSMALL, INPUT);
   setMotorSpeeds(0, 0);
+  setSweeperSpeed(-100);
+  delay(2500);
   setSweeperSpeed(100);
-  delay(300);
+  delay(550);
   setSweeperSpeed(0);
 }
 void loop() {
