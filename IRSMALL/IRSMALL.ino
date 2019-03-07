@@ -4,5 +4,6 @@ void setup() {
   pinMode(IRSMALL, INPUT);
 }
 void loop() {
-  detect();
+  Serial.println(analogRead(IRSMALL));
+  delay(300);
 }

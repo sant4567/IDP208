@@ -27,6 +27,23 @@ double duration, distance;
 int amber =0;
 int iter = 0;
 
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);// set up Serial library at 9600 bps
+  pinMode(button,INPUT);
+  AFMS.begin();  // create with the default frequency 1.6KHz
+  //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(IRSMALL, INPUT);
+  setMotorSpeeds(0, 0);
+  setSweeperSpeed(-100);
+  delay(2500);
+  setSweeperSpeed(100);
+  delay(550);
+  setSweeperSpeed(0);
+}
 void setMotorSpeed(Adafruit_DCMotor *motor, int motor_speed) {
   motor->setSpeed(abs(motor_speed));
   if (motor_speed >= 0) {
@@ -57,6 +74,7 @@ void turn(void){
   delay(500);
   */
   // Updated turn
+  /*
   setMotorSpeeds(-250,0);
   delay(1500);
   setMotorSpeeds(200,250);
@@ -71,7 +89,19 @@ void turn(void){
   delay(1500);
   //setMotorSpeeds(0,0);
   //delay(49000);
-  
+  */
+  setMotorSpeeds(-200,0);
+  delay(3500);
+  setMotorSpeeds(0,200);
+  delay(2500);
+  setMotorSpeeds(-230,-250);
+  delay(3200);
+  setMotorSpeeds(190,0);
+  delay(2500);
+  setMotorSpeeds(-200,-180);
+  delay(2500);
+  setMotorSpeeds(255,220);
+  delay(500);
 }
 void turn_180(void){
   if (row_count%2) {
@@ -91,13 +121,21 @@ void turn_180(void){
 }
 void detectHES(void) {
   // take HES reading
+  if (count%2) {
+    block_load();
+  }
+  else {
+    setMotorSpeeds(100,100);
+    delay(1000);
+  }
+  ++count;
   /*if (not port is high i.e. not magnetic) {
     // potentially reverse
       block_load();
   }*/
 }
 void detectIR(void) {
-  /*if (analogRead(IRSMALL) > 10) {
+  if (analogRead(IRSMALL) > 10) {
     setMotorSpeeds(0,0);
     int IR = 0;
     while (IR < 10 and analogRead(IRSMALL) > 10) {
@@ -108,7 +146,7 @@ void detectIR(void) {
       Serial.println("Block Detected");
       detectHES();
     }
-  }*/
+  }
   
 }
 void shelf_park(void) {
@@ -118,6 +156,7 @@ void shelf_park(void) {
   delay(1500);
   setMotorSpeeds(255,150);
   delay(1500);
+  /* 
   while (!digitalRead(side_button)){
     setMotorSpeeds(150, 100);
   }
@@ -140,6 +179,7 @@ void shelf_park(void) {
   delay(200);
   setMotorSpeeds(0,0);
   delay(10000);//robot finished in start zone
+  */
   
 }
 void block_load(void) {
@@ -156,25 +196,7 @@ void block_load(void) {
   delay(550);
   setSweeperSpeed(0);
 }
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);// set up Serial library at 9600 bps
-  pinMode(button,INPUT);
-  Serial.println("Adafruit Motorshield v2 - DC Motor test!");
-  AFMS.begin();  // create with the default frequency 1.6KHz
-  //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
-  pinMode(IRSMALL, INPUT);
-  setMotorSpeeds(0, 0);
-  setSweeperSpeed(-100);
-  delay(2500);
-  setSweeperSpeed(100);
-  delay(550);
-  setSweeperSpeed(0);
-}
 void loop() {
-  // if IR: detectIR()
   setMotorSpeeds(255,240);
   detectIR();
   iter++;
@@ -184,10 +206,10 @@ void loop() {
     //digitalWrite(amberPin, amber);
   }
   if (digitalRead(button)){
-    if (count<3){
+    if (count<1){
       turn();
     }
-    else if (count==3) {
+    else if (count==1) {
       shelf_park();
     }
     ++count;
