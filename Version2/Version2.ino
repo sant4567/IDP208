@@ -8,12 +8,6 @@
 #define IRSMALL A0
 //#define amberPin N
 
-// Initiate servo
-int servo_pin = 10;
-Servo servo;
-int open_angle = 70;
-int closed_angle = 150;
-
 // Create the motor shield object with the default I2C address
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 
@@ -27,23 +21,12 @@ double duration, distance;
 int amber =0;
 int iter = 0;
 
+// Initiate servo
+int servo_pin = 9;
+Servo servo;
+int open_angle = 70;
+int closed_angle = 150;
 
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);// set up Serial library at 9600 bps
-  pinMode(button,INPUT);
-  AFMS.begin();  // create with the default frequency 1.6KHz
-  //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
-  pinMode(IRSMALL, INPUT);
-  setMotorSpeeds(0, 0);
-  setSweeperSpeed(-100);
-  delay(2500);
-  setSweeperSpeed(100);
-  delay(550);
-  setSweeperSpeed(0);
-}
 void setMotorSpeed(Adafruit_DCMotor *motor, int motor_speed) {
   motor->setSpeed(abs(motor_speed));
   if (motor_speed >= 0) {
@@ -121,7 +104,7 @@ void turn_180(void){
 }
 void detectHES(void) {
   // take HES reading
-  if (count%2) {
+  if (not count%2) {
     block_load();
   }
   else {
@@ -147,7 +130,6 @@ void detectIR(void) {
       detectHES();
     }
   }
-  
 }
 void shelf_park(void) {
   setMotorSpeeds(-255, -250);
@@ -220,9 +202,36 @@ void park(void) {
   }
   delay(100000);
 }
+void servo1(void) {
+  int angle = 0;
+  for(angle = 0; angle < 180; angle += 1) {
+    servo.write(angle);
+    delay(15);
+  }
+  delay(10000);
+}
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);// set up Serial library at 9600 bps
+  pinMode(button,INPUT);
+  AFMS.begin();  // create with the default frequency 1.6KHz
+  //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(IRSMALL, INPUT);
+  setMotorSpeeds(0, 0);
+  setSweeperSpeed(-100);
+  delay(2500);
+  setSweeperSpeed(100);
+  delay(550);
+  setSweeperSpeed(0);
+  servo.attach(servo_pin);
+  servo.write(0);
+}
 void loop() {
-  park();
-  setMotorSpeeds(255,240);
+  //park();
+  servo1();
+  /*setMotorSpeeds(255,240);
   detectIR();
   iter++;
   if (iter>500) {
@@ -238,5 +247,5 @@ void loop() {
       shelf_park();
     }
     ++count;
-  }
+  }*/
 }
