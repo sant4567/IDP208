@@ -196,7 +196,32 @@ void block_load(void) {
   delay(550);
   setSweeperSpeed(0);
 }
+void park(void) {
+  //cubes now deposited on shelf
+  //servo lowers
+  //robot drives forward past shelf towards start zone
+  Serial.println("PARK");
+  setMotorSpeeds(253,250);
+  while (true) {
+    if (digitalRead(button)) {
+      setMotorSpeeds(-200, 0);
+      delay(3700);
+      setMotorSpeeds(0, -200);
+      delay(800);
+      setMotorSpeeds(200, 0);
+      delay(1600);
+      setMotorSpeeds(0, 200);
+      delay(1450);
+      setMotorSpeeds(-150, -150);
+      delay(1000);
+      setMotorSpeeds(0,0);
+      break;
+    }
+  }
+  delay(100000);
+}
 void loop() {
+  park();
   setMotorSpeeds(255,240);
   detectIR();
   iter++;
