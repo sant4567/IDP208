@@ -108,8 +108,7 @@ void detectHES(void) {
     block_load();
   }
   else {
-    setMotorSpeeds(100,100);
-    delay(1000);
+    block_reject();
   }
   ++count;
   /*if (not port is high i.e. not magnetic) {
@@ -123,10 +122,8 @@ void detectIR(void) {
     int IR = 0;
     while (IR < 10 and analogRead(IRSMALL) > 10) {
       IR+=1;
-      Serial.println("positive reading");
     }
     if (IR>9) {
-      Serial.println("Block Detected");
       detectHES();
     }
   }*/
@@ -175,6 +172,20 @@ void block_load(void) {
   delay(550);
   setSweeperSpeed(0);
 }
+void block_reject(void) {
+  setMotorSpeeds(100,100);
+  delay(1000);
+  setMotorSpeeds(0, 0);
+  setSweeperSpeed(-100);
+  delay(1500);
+  setSweeperSpeed(0);
+  setMotorSpeeds(-100, -100);
+  delay(1000);
+  setMotorSpeeds(0, 0);
+  setSweeperSpeed(100);
+  delay(1500);
+  setSweeperSpeed(0);
+}
 void park(void) {
   //cubes now deposited on shelf
   //servo lowers
@@ -200,8 +211,6 @@ void park(void) {
   delay(100000);
 }
 void servo1(void) {
-  setMotorSpeeds(255,255);
-  delay(1000000);
   servo.write(145);
   setMotorSpeeds(100, 100);
   delay(1000);
@@ -251,7 +260,6 @@ void setup() {
   delay(2000);
 }
 void loop() {
-  servo1();
   setMotorSpeeds(255,240);
   detectIR();
   iter++;
