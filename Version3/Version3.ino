@@ -3,9 +3,9 @@
 #include <Servo.h>
 #define button 2
 #define side_button 3
-#define trigPin 13
-#define echoPin 12
-#define IRSMALL A0
+#define IRSMALL A1
+#define gled 6
+#define aled 7
 //#define amberPin N
 
 // Create the motor shield object with the default I2C address
@@ -20,6 +20,11 @@ int row_count = 0;
 double duration, distance;
 int amber =0;
 int iter = 0;
+int hcount=0;
+int reference;
+float rvoltage;
+int* p;
+int blockcount=0;
 
 // Initiate servo
 int servo_pin = 9;
@@ -74,9 +79,9 @@ void turn(void){
   //delay(49000);
   */
   setMotorSpeeds(-200,0);
-  delay(3800);
+  delay(6000);
   setMotorSpeeds(0,200);
-  delay(2500);
+  delay(3500);
   setMotorSpeeds(-230,-250);
   delay(3200);
   setMotorSpeeds(190,0);
@@ -103,30 +108,36 @@ void turn_180(void){
   }
 }
 void detectHES(void) {
-  // take HES reading
-  if (not count%2) {
+  int itercount = 0;
+  setMotorSpeeds(5,5);
+  while (itercount < 100 and analogRead(A3) < 100 and analogRead(A2) < 100) {
+    ++itercount;
+    delay(10);// tune delay as needed
+  }
+    // otherwise block is not magnetic so will be auto rejected
+  setMotorSpeeds(-5,-5);
+  delay(1000);
+  if (itercount >= 99){
+    setMotorSpeeds(0, 0);
     block_load();
   }
-  else {
-    block_reject();
-  }
-  ++count;
-  /*if (not port is high i.e. not magnetic) {
-    // potentially reverse
-      block_load();
-  }*/
 }
 void detectIR(void) {
-  /*if (analogRead(IRSMALL) > 10) {
+  if (analogRead(IRSMALL) > 0) {
     setMotorSpeeds(0,0);
     int IR = 0;
-    while (IR < 10 and analogRead(IRSMALL) > 10) {
+    while (IR < 10 and analogRead(IRSMALL) > 0) {
       IR+=1;
     }
     if (IR>9) {
-      detectHES();
+      digitalWrite(gled,HIGH);
+      delay(3000);
+      setMotorSpeeds(250, 250);
+      delay(1000);
+      //block_load();
+      //detectHES();
     }
-  }*/
+  }
 }
 void shelf_park(void) {
   setMotorSpeeds(-150, -145);
@@ -244,37 +255,51 @@ void setup() {
   pinMode(button,INPUT);
   AFMS.begin();  // create with the default frequency 1.6KHz
   //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
   pinMode(IRSMALL, INPUT);
+  pinMode(A3, INPUT);
+  pinMode(A2, INPUT);
+  pinMode(A0, INPUT);
+  pinMode(A1, INPUT);
+  pinMode(10, OUTPUT);
   setMotorSpeeds(0, 0);
   setSweeperSpeed(-100);
   delay(2500);
   setSweeperSpeed(100);
   delay(550);
   setSweeperSpeed(0);
-  servo.attach(servo_pin);
-  servo.write(150);
-  delay(1000);
-  servo.write(148);
-  delay(2000);
+//  servo.attach(servo_pin);
+//  servo.write(150);
+//  delay(1000);
+//  servo.write(140);
+//  delay(2000);
 }
 void loop() {
+//  if (hcount==0) {
+//    reference = analogRead(A0);
+//    analogWrite(10, reference/4.01176471);
+//    ++hcount;
+//  }
   setMotorSpeeds(255,240);
   detectIR();
-  iter++;
-  if (iter>500) {
-    iter=0;
-    amber=not amber;
-    //digitalWrite(amberPin, amber);
-  }
+//  if (iter>500) {
+//    iter=0;
+//    amber=not amber;
+//    digitalWrite(aled, amber);
+//  }
   if (digitalRead(button)){
-    if (count<3){
+    if (count<2){
       turn();
+      ++count;
+      Serial.println(count);
     }
-    else if (count==3) {
-      shelf_park();
+    else if (count>=2) {
+      setMotorSpeeds(-100,-160);
+      delay(2000);
+      setMotorSpeeds(-160,-100);
+      delay(2000);
+      setMotorSpeeds(0,0);
+      delay(1000000);
+      //shelf_park();
     }
-    ++count;
   }
 }

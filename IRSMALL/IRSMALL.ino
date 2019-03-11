@@ -1,4 +1,4 @@
-#define IRSMALL A0
+#define IRSMALL A1
 void setup() {
   Serial.begin (9600);
   pinMode(IRSMALL, INPUT);
