@@ -108,38 +108,55 @@ void turn_180(void){
   }
 }
 void detectHES(void) {
-  int itercount = 0;
-  Serial.print(analogRead(A2));Serial.print(" ");Serial.println(A3);
-  while (itercount < 100 and (analogRead(A3) < 500 and analogRead(A2) < 500)) {
-    Serial.print(analogRead(A2));Serial.print(" ");Serial.println(A3);
-    ++itercount;
-    delay(10);// tune delay as needed
+  int magnetic=0;
+  int HE=0;
+  for (int HE=0; HE<=100; HE++){
+    if (magnetic) {break;}
+    setMotorSpeeds(20, 20);
+    Serial.println("Speeds 10");
+    if (analogRead(A3) > 500 or analogRead(A2) > 500) {
+      Serial.println("Speeds 0");
+      setMotorSpeeds(0, 0);
+      int itercount = 0;
+      while (itercount < 20 and (analogRead(A3) > 500 or analogRead(A2) > 500)) {
+        Serial.println(itercount);
+        ++itercount;
+        delay(20);
+      }
+      if (itercount >= 19){
+        Serial.println("Magnetic");
+        magnetic=1;
+      }
+    }
+    Serial.println(HE);
+    delay(10);
   }
-    // otherwise block is not magnetic so will be auto rejected
-  setMotorSpeeds(-5,-5);
-  delay(1500);
-  if (itercount >= 99){
-    setMotorSpeeds(0, 0);
+  if (not magnetic) {
+    Serial.println("block_load()");
+    setMotorSpeeds(-20, -20);
+    delay(2000);
+    setMotorSpeeds(0,0);
+    delay(2000);
     block_load();
   }
-  setMotorSpeeds(200, 200);
-  delay(500);
-  digitalWrite(gled,LOW);
+  else if (magnetic) {
+    delay(2000);
+    setMotorSpeeds(100, 100);
+    delay(1000);
+    digitalWrite(gled,LOW);
+  }
+
 }
 void detectIR(void) {
   if (analogRead(IRSMALL) > 2) {
-    Serial.println("TEST");
     setMotorSpeeds(0,0);
     int IR = 0;
     while (IR < 10 and analogRead(IRSMALL) > 0) {
       IR+=1;
     }
     if (IR>9) {
-      digitalWrite(gled,HIGH);
-      setMotorSpeeds(10,10);// moving so hall is above cube
-      delay(2000);
-      setMotorSpeeds(0,0);
-      delay(3500);
+      digitalWrite(gled, HIGH);
+      Serial.println("IR detected");
       detectHES();
     }
   }
@@ -160,9 +177,11 @@ void shelf_park(void) {
   }
   setMotorSpeeds(100,100);
   delay(500);
+  setMotorSpeeds(0,0);
   setSweeperSpeed(-255);
   delay(700);
-  servo.write(50);
+  servo.write(45);
+  setMotorSpeeds(100,100);
   delay(4000);
   servo.write(130);
   delay(1000);
@@ -175,7 +194,7 @@ void shelf_park(void) {
   setMotorSpeeds(100,100);
   delay(200);
   setMotorSpeeds(0,0);
-  delay(10000);//robot finished in start zone*/
+  delay(100000);//robot finished in start zone
 }
 void block_load(void) {
   setSweeperSpeed(-100);
@@ -201,20 +220,6 @@ void block_load(void) {
   setMotorSpeeds(0,0);
   delay(400);
 }
-void block_reject(void) {
-  setMotorSpeeds(100,100);
-  delay(1000);
-  setMotorSpeeds(0, 0);
-  setSweeperSpeed(-100);
-  delay(1500);
-  setSweeperSpeed(0);
-  setMotorSpeeds(-100, -100);
-  delay(1000);
-  setMotorSpeeds(0, 0);
-  setSweeperSpeed(100);
-  delay(1500);
-  setSweeperSpeed(0);
-}
 void park(void) {
   //cubes now deposited on shelf
   //servo lowers
@@ -238,34 +243,6 @@ void park(void) {
     }
   }
   delay(100000);
-}
-void servo1(void) {
-  servo.write(145);
-  setMotorSpeeds(100, 100);
-  delay(1000);
-  setMotorSpeeds(0, 0);
-  servo.write(150);
-  setSweeperSpeed(255);
-  delay(1000);
-  setSweeperSpeed(-200);
-  delay(2000);
-  setSweeperSpeed(100);
-  delay(550);
-  setSweeperSpeed(0);
-  for (int i=0; i<=1000; i++) {
-    servo.write(150-i/10);
-    delay(1);
-  }
-  setMotorSpeeds(110,100);
-  delay(10000);
-  while (true) {
-    servo.write(50);
-    Serial.println(servo.read());
-    delay(2000);
-    servo.write(150);
-    Serial.println(servo.read());
-    delay(2000);
-  }
 }
 void setup() {
   // put your setup code here, to run once:
@@ -297,22 +274,30 @@ void setup() {
   delay(2000);
 }
 void loop() {
-  setMotorSpeeds(230,210);
+  setMotorSpeeds(220,200);
   detectIR();
   iter++;
-  if (iter>50) {
+  if (iter>100) {
     iter=0;
     amber=not amber;
     digitalWrite(aled, amber);
   }
   if (digitalRead(button)){
-    if (count < 3 and count!=1){
+    if (count < 3 and count!=1) {
       turn();
     }
     else if (count==1){
       setMotorSpeeds(0,0);
+      servo.write(150);
       setSweeperSpeed(255);
       delay(700);
+      setSweeperSpeed(-100);
+      delay(2500);
+      setSweeperSpeed(100);
+      delay(1000);
+      setSweeperSpeed(0);
+      servo.write(130);
+      delay(200);
       turn();
     }
     else if (count>=3) {
