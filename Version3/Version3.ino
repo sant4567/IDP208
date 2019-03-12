@@ -109,17 +109,21 @@ void turn_180(void){
 }
 void detectHES(void) {
   int itercount = 0;
-  while (itercount < 100 and analogRead(A3) < 500 and analogRead(A2) < 500) {
+  Serial.print(analogRead(A2));Serial.print(" ");Serial.println(A3);
+  while (itercount < 100 and (analogRead(A3) < 500 and analogRead(A2) < 500)) {
+    Serial.print(analogRead(A2));Serial.print(" ");Serial.println(A3);
     ++itercount;
     delay(10);// tune delay as needed
   }
     // otherwise block is not magnetic so will be auto rejected
   setMotorSpeeds(-5,-5);
-  delay(1000);
+  delay(1500);
   if (itercount >= 99){
     setMotorSpeeds(0, 0);
     block_load();
   }
+  setMotorSpeeds(200, 200);
+  delay(500);
   digitalWrite(gled,LOW);
 }
 void detectIR(void) {
@@ -135,7 +139,7 @@ void detectIR(void) {
       setMotorSpeeds(10,10);// moving so hall is above cube
       delay(2000);
       setMotorSpeeds(0,0);
-      delay(10000);
+      delay(3500);
       detectHES();
     }
   }
@@ -156,6 +160,8 @@ void shelf_park(void) {
   }
   setMotorSpeeds(100,100);
   delay(500);
+  setSweeperSpeed(-255);
+  delay(700);
   servo.write(50);
   delay(4000);
   servo.write(130);
@@ -176,8 +182,11 @@ void block_load(void) {
   delay(1500);
   setMotorSpeeds(100,100);
   delay(1000);
-  setMotorSpeeds(0,0);
   servo.write(150);
+  delay(100);
+  servo.write(150);
+  delay(100);
+  setMotorSpeeds(0,0);
   setSweeperSpeed(255);
   delay(700);
   setSweeperSpeed(-100);
@@ -187,6 +196,10 @@ void block_load(void) {
   setSweeperSpeed(0);
   servo.write(130);
   digitalWrite(gled,LOW);
+  setMotorSpeeds(-100, -100);
+  delay(400);
+  setMotorSpeeds(0,0);
+  delay(400);
 }
 void block_reject(void) {
   setMotorSpeeds(100,100);
@@ -269,6 +282,8 @@ void setup() {
   pinMode(aled, OUTPUT);
   pinMode(gled, OUTPUT);
   digitalWrite(gled,LOW);
+  reference = analogRead(A0);
+  analogWrite(11, 123);
   setMotorSpeeds(0, 0);
   setSweeperSpeed(-100);
   delay(2500);
@@ -282,14 +297,7 @@ void setup() {
   delay(2000);
 }
 void loop() {
-  if (hcount==0) {
-    reference = analogRead(A0);
-    analogWrite(10, reference/4.01176471);
-    hcount++;
-    float v=analogRead(10);
-    Serial.println(v);
-  }
-  setMotorSpeeds(200,195);
+  setMotorSpeeds(230,210);
   detectIR();
   iter++;
   if (iter>50) {
@@ -298,10 +306,16 @@ void loop() {
     digitalWrite(aled, amber);
   }
   if (digitalRead(button)){
-    if (count<1){
+    if (count < 3 and count!=1){
       turn();
     }
-    else if (count>=1) {
+    else if (count==1){
+      setMotorSpeeds(0,0);
+      setSweeperSpeed(255);
+      delay(700);
+      turn();
+    }
+    else if (count>=3) {
       shelf_park();
     }
     count++;
