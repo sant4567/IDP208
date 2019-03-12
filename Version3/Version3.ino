@@ -109,8 +109,7 @@ void turn_180(void){
 }
 void detectHES(void) {
   int itercount = 0;
-  setMotorSpeeds(5,5);
-  while (itercount < 100 and analogRead(A3) < 100 and analogRead(A2) < 100) {
+  while (itercount < 100 and analogRead(A3) < 500 and analogRead(A2) < 500) {
     ++itercount;
     delay(10);// tune delay as needed
   }
@@ -124,18 +123,22 @@ void detectHES(void) {
   digitalWrite(gled,LOW);
 }
 void detectIR(void) {
-  Serial.println("detectIR");
-//  if (analogRead(IRSMALL) > 0) {
-//    setMotorSpeeds(0,0);
-//    int IR = 0;
-//    while (IR < 10 and analogRead(IRSMALL) > 0) {
-//      IR+=1;
-//    }
-//    if (IR>9) {
-//      digitalWrite(gled,HIGH);
-//      //detectHES();
-//    }
-//  }
+  if (analogRead(IRSMALL) > 2) {
+    Serial.println("TEST");
+    setMotorSpeeds(0,0);
+    int IR = 0;
+    while (IR < 10 and analogRead(IRSMALL) > 0) {
+      IR+=1;
+    }
+    if (IR>9) {
+      digitalWrite(gled,HIGH);
+      setMotorSpeeds(10,10);// moving so hall is above cube
+      delay(2000);
+      setMotorSpeeds(0,0);
+      delay(10000);
+      detectHES();
+    }
+  }
 }
 void shelf_park(void) {
   setMotorSpeeds(-150, -145);
@@ -174,13 +177,15 @@ void block_load(void) {
   setMotorSpeeds(100,100);
   delay(1000);
   setMotorSpeeds(0,0);
+  servo.write(150);
   setSweeperSpeed(255);
-  delay(550);
+  delay(700);
   setSweeperSpeed(-100);
   delay(2500);
   setSweeperSpeed(100);
   delay(550);
   setSweeperSpeed(0);
+  servo.write(130);
   digitalWrite(gled,LOW);
 }
 void block_reject(void) {
@@ -277,19 +282,21 @@ void setup() {
   delay(2000);
 }
 void loop() {
-//  if (hcount==0) {
-//    reference = analogRead(A0);
-//    analogWrite(10, reference/4.01176471);
-//    hcount++;
-//  }
-  setMotorSpeeds(255,240);
+  if (hcount==0) {
+    reference = analogRead(A0);
+    analogWrite(10, reference/4.01176471);
+    hcount++;
+    float v=analogRead(10);
+    Serial.println(v);
+  }
+  setMotorSpeeds(200,195);
   detectIR();
-//  iter++;
-//  if (iter>50) {
-//    iter=0;
-//    amber=not amber;
-//    digitalWrite(aled, amber);
-//  }
+  iter++;
+  if (iter>50) {
+    iter=0;
+    amber=not amber;
+    digitalWrite(aled, amber);
+  }
   if (digitalRead(button)){
     if (count<1){
       turn();

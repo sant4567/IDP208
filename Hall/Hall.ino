@@ -16,6 +16,7 @@ void loop() {
     reference = analogRead(A0);
     p=&reference;
     ++hcount;
+    analogWrite(10, reference/4.0);
   }
   reference = *p;
   float rvoltage=reference*4.95/1023.0;
@@ -23,8 +24,8 @@ void loop() {
   float voltage = sensorValue * (4.95 / 1023.0);
 //  Serial.print("Voltage: ");Serial.print(voltage);Serial.print(" Reference: ");Serial.println(rvoltage);
   
-  analogWrite(10, reference/4.01176471);
+  
   Serial.print(analogRead(A2));Serial.print(" ");Serial.println(analogRead(A3));
-  delay(300);
+  delay(100);
   
 }
