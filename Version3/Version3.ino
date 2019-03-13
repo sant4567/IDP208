@@ -96,14 +96,14 @@ void turn_180(void){
     setMotorSpeeds(-250,0);
     delay(3800);
     setMotorSpeeds(-200,-200);
-    delay(1000);
+    delay(1500);
     ++row_count;
   }
   else {
     setMotorSpeeds(0,-250);
     delay(3800);
     setMotorSpeeds(-200,-200);
-    delay(1000);
+    delay(1500);
     ++row_count;
   }
 }
@@ -190,11 +190,18 @@ void shelf_park(void) {
     setMotorSpeeds(200,200);
   //robot reaches final wall next to start zone and begins turning
   setMotorSpeeds(-200,0);
-  delay(1000);
+  delay(2000);
   setMotorSpeeds(100,100);
   delay(200);
   setMotorSpeeds(0,0);
-  delay(100000);//robot finished in start zone
+  setSweeperSpeed(-100);
+  delay(2500);
+  setSweeperSpeed(100);
+  delay(550);
+  setSweeperSpeed(0);
+  if (count==10) {
+    delay(1000000);
+  }
 }
 void block_load(void) {
   setSweeperSpeed(-100);
@@ -274,7 +281,8 @@ void setup() {
   delay(2000);
 }
 void loop() {
-  setMotorSpeeds(220,200);
+  if (count>4){setMotorSpeeds(200,200);}
+  else {setMotorSpeeds(220,200);}
   detectIR();
   iter++;
   if (iter>100) {
@@ -283,7 +291,7 @@ void loop() {
     digitalWrite(aled, amber);
   }
   if (digitalRead(button)){
-    if (count < 3 and count!=1) {
+    if (count==0 or count==2 or count==9) {
       turn();
     }
     else if (count==1){
@@ -300,8 +308,20 @@ void loop() {
       delay(200);
       turn();
     }
-    else if (count>=3) {
+    else if (count==3 or count==10) {
       shelf_park();
+    }
+    else if (count==4) {
+      setMotorSpeeds(-200,0);
+      delay(4000);
+    }
+    else if (count>=5 and count<=7) {
+      turn_180();
+    }
+    else if (count==8){
+      turn_180();
+      setMotorSpeeds(200, 0);
+      delay(3500);
     }
     count++;
   }
